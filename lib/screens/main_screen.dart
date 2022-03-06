@@ -26,6 +26,8 @@ class _MainScreenState extends State<MainScreen> {
     super.didChangeDependencies();
   }
 
+  Future<void> getNewPerks() async {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +36,19 @@ class _MainScreenState extends State<MainScreen> {
       ),
       //
       body: Consumer<Perks>(builder: (context, perks, child) {
-        return Text("Perks size: " + perks.getSize().toString());
+        Widget listView = const Text("Loading");
+        if (perks.getSize() != 0) {
+          listView = GridView.extent(
+            maxCrossAxisExtent: 160,
+            children: perks.getAllPerks(),
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.all(1),
+          child: listView,
+        );
       }),
     );
   }
