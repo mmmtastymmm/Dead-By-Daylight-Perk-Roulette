@@ -1,44 +1,72 @@
 import 'package:flutter/cupertino.dart';
+import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 
 import '../widgets/perk.dart';
 
+enum PerkType { survivor, killer }
+
 class Perks with ChangeNotifier {
-  final List<Perk> _perks = [];
+  final List<Perk> _survivorPerks = [];
+  final List<Perk> _killerPerks = [];
+  final PerkType _currentType = PerkType.killer;
 
   Future<void> loadPerks() async {
-    var url = Uri.parse(
-        'https://deadbydaylight.fandom.com/wiki/Category:Perk_images');
-    var response = await http.get(url);
-    var allImages = response.body
-        .split(" ")
-        .where((element) =>
-            element.contains(".png") &&
-            element.contains("IconPerks") &&
-            element.contains("href") &&
-            element.contains("https") &&
-            !element.contains("old") &&
-            !element.contains("artefactHunter") &&
-            !element.contains("toughRunner") &&
-            !element.contains("lastStanding"))
-        .map((e) {
-      return e.split("\"")[1];
-    });
-    for (var element in allImages) {
-      _perks.add(Perk(element));
-    }
+    // Get the perk table page
+    var tableResponse = await http
+        .get(Uri.parse("https://deadbydaylight.fandom.com/wiki/Perks"));
+    var html = parse(tableResponse.body);
+    // Get the two main perk tables, which have this common class name
+    var tables = html.body?.getElementsByClassName("wikitable unknownClass");
+    var survivorTable = tables?[0];
+    updatePerks(survivorTable, _survivorPerks);
+    // Now do the same for killer perks
+    var killerTable = tables?[1];
+    updatePerks(killerTable, _killerPerks);
     notifyListeners();
   }
 
+  void updatePerks(dom.Element? survivorTable, List<Perk> listToUpdate) {
+    // Get the rows and filter out the header
+    var allRows = survivorTable?.children.last.children;
+    var allRowsSize = allRows?.length;
+    List<dom.Element> goodRows = [];
+    for (var i = 0; i < allRowsSize!; i++) {
+      if (i != 0) {
+        var value = allRows?.elementAt(i);
+        if (value != null) {
+          goodRows.add(value);
+        }
+      }
+    }
+    // Now update the perks
+    for (var element in goodRows) {
+      listToUpdate.add(Perk.parseFromWiki(element));
+    }
+  }
+
   int getSize() {
-    return _perks.length;
+    if (_currentType == PerkType.survivor) {
+      return _survivorPerks.length;
+    } else {
+      return _killerPerks.length;
+    }
   }
 
   Perk getByIndex(int index) {
-    return _perks[index];
+    if (_currentType == PerkType.survivor) {
+      return _survivorPerks[index];
+    } else {
+      return _killerPerks[index];
+    }
   }
 
-  List<Perk> getAllPerks() {
-    return _perks;
+  List<Perk> getAllCurrentPerks() {
+    if (_currentType == PerkType.survivor) {
+      return _survivorPerks;
+    } else {
+      return _killerPerks;
+    }
   }
 }

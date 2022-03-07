@@ -2,6 +2,8 @@ import 'package:dbd_perk_picker_flutter/providers/perks.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../widgets/perk.dart';
+
 class MainScreen extends StatefulWidget {
   static const routeName = "/main-screen";
 
@@ -39,10 +41,11 @@ class _MainScreenState extends State<MainScreen> {
         Widget listView = const Text("Loading");
         if (perks.getSize() != 0) {
           listView = GridView.extent(
-            maxCrossAxisExtent: 160,
-            children: perks.getAllPerks(),
+            maxCrossAxisExtent: Perk.width - 20,
+            children: perks.getAllCurrentPerks(),
             crossAxisSpacing: 20,
             mainAxisSpacing: 20,
+            padding: const EdgeInsets.all(20),
           );
         }
         return Padding(
