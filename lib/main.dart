@@ -1,5 +1,7 @@
 import 'package:dbd_perk_picker_flutter/providers/perks.dart';
+import 'package:dbd_perk_picker_flutter/screens/home_page.dart';
 import 'package:dbd_perk_picker_flutter/screens/main_screen.dart';
+import 'package:dbd_perk_picker_flutter/screens/random_perk_page.dart';
 import 'package:dbd_perk_picker_flutter/widgets/shift_right_fixer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,11 +25,17 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.red)
               .copyWith(secondary: Colors.black),
         ),
-        home: const ShiftRightFixer(child: MainScreen()),
+        home: const ShiftRightFixer(child: HomePage()),
         routes: {
           MainScreen.routeName: (context) {
             return const MainScreen();
           },
+          HomePage.routeName: (context) {
+            return const HomePage();
+          },
+          RandomPerkPage.routeName: (context) {
+            return const RandomPerkPage();
+          }
         },
       ),
     );

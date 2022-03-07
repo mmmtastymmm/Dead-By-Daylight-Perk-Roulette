@@ -7,10 +7,20 @@ import '../widgets/perk.dart';
 
 enum PerkType { survivor, killer }
 
+String prettyPerkType(PerkType perkType) {
+  switch (perkType) {
+    case PerkType.survivor:
+      return "Survivor";
+
+    case PerkType.killer:
+      return "Killer";
+  }
+}
+
 class Perks with ChangeNotifier {
   final List<Perk> _survivorPerks = [];
   final List<Perk> _killerPerks = [];
-  final PerkType _currentType = PerkType.killer;
+  PerkType _currentPerkType = PerkType.killer;
 
   Future<void> loadPerks() async {
     // Get the perk table page
@@ -47,7 +57,7 @@ class Perks with ChangeNotifier {
   }
 
   int getSize() {
-    if (_currentType == PerkType.survivor) {
+    if (_currentPerkType == PerkType.survivor) {
       return _survivorPerks.length;
     } else {
       return _killerPerks.length;
@@ -55,7 +65,7 @@ class Perks with ChangeNotifier {
   }
 
   Perk getByIndex(int index) {
-    if (_currentType == PerkType.survivor) {
+    if (_currentPerkType == PerkType.survivor) {
       return _survivorPerks[index];
     } else {
       return _killerPerks[index];
@@ -63,10 +73,18 @@ class Perks with ChangeNotifier {
   }
 
   List<Perk> getAllCurrentPerks() {
-    if (_currentType == PerkType.survivor) {
+    if (_currentPerkType == PerkType.survivor) {
       return _survivorPerks;
     } else {
       return _killerPerks;
     }
+  }
+
+  void setMode(PerkType newPerkType) {
+    _currentPerkType = newPerkType;
+  }
+
+  PerkType getMode() {
+    return _currentPerkType;
   }
 }
