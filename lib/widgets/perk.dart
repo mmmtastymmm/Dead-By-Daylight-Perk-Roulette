@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:transparent_image/transparent_image.dart';
 
 class Perk extends StatelessWidget {
   static const double width = 200;
@@ -48,9 +47,8 @@ class Perk extends StatelessWidget {
       child: Column(children: [
         Expanded(
           flex: 8,
-          child: FadeInImage.memoryNetwork(
-            placeholder: kTransparentImage,
-            image: imageUrl,
+          child: Image.network(
+            imageUrl,
           ),
         ),
         Expanded(
@@ -58,6 +56,7 @@ class Perk extends StatelessWidget {
           child: Text(
             name,
             textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       ]),

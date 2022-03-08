@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' show parse;
@@ -86,5 +88,19 @@ class Perks with ChangeNotifier {
 
   PerkType getMode() {
     return _currentPerkType;
+  }
+
+  List<Perk> getRoulettePerks() {
+    if (_currentPerkType == PerkType.survivor) {
+      return _getUpToThisManyPerks(_survivorPerks, 4);
+    } else {
+      return _getUpToThisManyPerks(_killerPerks, 4);
+    }
+  }
+
+  static List<Perk> _getUpToThisManyPerks(List<Perk> perks, int max) {
+    return (perks.toList()..shuffle())
+        .sublist(0, min(max, perks.length))
+        .toList();
   }
 }
