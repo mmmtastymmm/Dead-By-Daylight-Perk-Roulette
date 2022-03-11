@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,14 +18,20 @@ class _RandomPerkPageState extends State<RandomPerkPage>
     with TickerProviderStateMixin {
   List<Perk> _perks = [];
 
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 4),
-    vsync: this,
-  );
-  late final Animation<double> _animation = Tween(
-    begin: 0.0,
-    end: 1.0,
-  ).animate(_controller);
+  late final List<AnimationController> _controller =
+      List<int>.generate(4, (int index) => index)
+          .map((_) => AnimationController(
+                duration: const Duration(seconds: 4),
+                vsync: this,
+              ))
+          .toList();
+  late final List<Animation<double>> _animation =
+      List<int>.generate(4, (int index) => index)
+          .map((index) => Tween(
+                begin: 0.0,
+                end: 1.0,
+              ).animate(_controller[index]))
+          .toList();
 
   @override
   void initState() {
@@ -38,7 +45,19 @@ class _RandomPerkPageState extends State<RandomPerkPage>
     setState(() {
       _perks = Provider.of<Perks>(context, listen: false).getRoulettePerks();
     });
-    _controller.reset();
+    for (var controller in _controller) {
+      controller.reset();
+      controller.forward();
+    }
+  }
+
+  void _updateSinglePerk(int index) {
+    setState(() {
+      _perks[index] = Provider.of<Perks>(context, listen: false)
+          .getRoulettePerks(perksToAvoid: _perks, perkCount: 1)[0];
+    });
+    _controller[index].reset();
+    _controller[index].forward();
   }
 
   @override
@@ -48,7 +67,6 @@ class _RandomPerkPageState extends State<RandomPerkPage>
     if (_perks.isEmpty) {
       getNewPerks();
     }
-    _controller.forward();
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -62,9 +80,9 @@ class _RandomPerkPageState extends State<RandomPerkPage>
           children: [
             TextButton(
                 onPressed: () {
-                  Provider.of<Perks>(context, listen: false)
-                      .setMode(PerkType.survivor);
-                  Navigator.of(context).pushNamed(RandomPerkPage.routeName);
+                  if (kDebugMode) {
+                    print("sad");
+                  }
                 },
                 child: const Text("Filter Perks")),
             TextButton(
@@ -75,9 +93,31 @@ class _RandomPerkPageState extends State<RandomPerkPage>
             Expanded(
               child: Center(
                 child: Row(
-                  children: _perks.map((e) {
+                  children: _perks.asMap().entries.map((e) {
                     return Expanded(
-                      child: FadeTransition(opacity: _animation, child: e),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            const SizedBox(
+                              height: 100,
+                            ),
+                            FadeTransition(
+                                opacity: _animation[e.key], child: e.value),
+                            TextButton(
+                              onPressed: () {
+                                _updateSinglePerk(e.key);
+                              },
+                              child: const Text("Reroll"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                _updateSinglePerk(e.key);
+                              },
+                              child: const Text("Disable"),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   }).toList(),
                 ),

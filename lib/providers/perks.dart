@@ -90,17 +90,22 @@ class Perks with ChangeNotifier {
     return _currentPerkType;
   }
 
-  List<Perk> getRoulettePerks() {
+  List<Perk> getRoulettePerks(
+      {List<Perk> perksToAvoid = const [], int perkCount = 4}) {
     if (_currentPerkType == PerkType.survivor) {
-      return _getUpToThisManyPerks(_survivorPerks, 4);
+      return _getUpToThisManyPerks(_survivorPerks, 4,
+          perksToAvoid: perksToAvoid);
     } else {
-      return _getUpToThisManyPerks(_killerPerks, 4);
+      return _getUpToThisManyPerks(_killerPerks, 4, perksToAvoid: perksToAvoid);
     }
   }
 
-  static List<Perk> _getUpToThisManyPerks(List<Perk> perks, int max) {
-    return (perks.toList()..shuffle())
-        .sublist(0, min(max, perks.length))
-        .toList();
+  static List<Perk> _getUpToThisManyPerks(List<Perk> perks, int max,
+      {List<Perk> perksToAvoid = const []}) {
+    var randomPerks = perks
+        .where((element) => !perksToAvoid.contains(element))
+        .toList()
+      ..shuffle();
+    return randomPerks.sublist(0, min(max, perks.length)).toList();
   }
 }
