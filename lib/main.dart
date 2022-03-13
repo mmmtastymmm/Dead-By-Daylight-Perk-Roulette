@@ -1,6 +1,6 @@
 import 'package:dbd_perk_picker_flutter/providers/perks.dart';
+import 'package:dbd_perk_picker_flutter/screens/filter_screen.dart';
 import 'package:dbd_perk_picker_flutter/screens/home_page.dart';
-import 'package:dbd_perk_picker_flutter/screens/main_screen.dart';
 import 'package:dbd_perk_picker_flutter/screens/random_perk_page.dart';
 import 'package:dbd_perk_picker_flutter/widgets/shift_right_fixer.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
         ),
         home: const ShiftRightFixer(child: HomePage()),
         routes: {
-          MainScreen.routeName: (context) {
-            return const MainScreen();
+          FilterScreen.routeName: (context) {
+            return const FilterScreen();
           },
           HomePage.routeName: (context) {
             return const HomePage();

@@ -32,6 +32,9 @@ class Perks with ChangeNotifier {
   PerkType _currentPerkType = PerkType.killer;
 
   Future<void> loadPerks() async {
+    if (_killerPerks.isNotEmpty && _survivorPerks.isNotEmpty) {
+      return;
+    }
     // Get the perk table page
     var tableResponse = await http
         .get(Uri.parse("https://deadbydaylight.fandom.com/wiki/Perks"));
@@ -87,6 +90,14 @@ class Perks with ChangeNotifier {
     }
   }
 
+  List<PerkStateWrapper> getAllCurrentPerkStates() {
+    if (_currentPerkType == PerkType.survivor) {
+      return _survivorPerks;
+    } else {
+      return _killerPerks;
+    }
+  }
+
   void setMode(PerkType newPerkType) {
     _currentPerkType = newPerkType;
   }
@@ -114,7 +125,7 @@ class Perks with ChangeNotifier {
         .map((e) => e.perk)
         .toList()
       ..shuffle();
-    return randomPerks.sublist(0, min(max, perks.length)).toList();
+    return randomPerks.sublist(0, min(max, randomPerks.length)).toList();
   }
 
   void disablePerk(Perk perk) {
@@ -127,5 +138,56 @@ class Perks with ChangeNotifier {
           .firstWhere((element) => element.perk.name == perk.name)
           .enabled = false;
     }
+    notifyListeners();
+  }
+
+  void enablePerk(Perk perk) {
+    if (_survivorPerks.any((element) => element.perk.name == perk.name)) {
+      _survivorPerks
+          .firstWhere((element) => element.perk.name == perk.name)
+          .enabled = true;
+    } else if (_killerPerks.any((element) => element.perk.name == perk.name)) {
+      _killerPerks
+          .firstWhere((element) => element.perk.name == perk.name)
+          .enabled = true;
+    }
+    notifyListeners();
+  }
+
+  void togglePerk(Perk perk) {
+    if (_survivorPerks.any((element) => element.perk.name == perk.name)) {
+      _survivorPerks
+              .firstWhere((element) => element.perk.name == perk.name)
+              .enabled =
+          !_survivorPerks
+              .firstWhere((element) => element.perk.name == perk.name)
+              .enabled;
+    } else if (_killerPerks.any((element) => element.perk.name == perk.name)) {
+      _killerPerks
+              .firstWhere((element) => element.perk.name == perk.name)
+              .enabled =
+          !_killerPerks
+              .firstWhere((element) => element.perk.name == perk.name)
+              .enabled;
+    }
+    notifyListeners();
+  }
+
+  void toggleCurrentPerks() {
+    var currentPerks =
+        _currentPerkType == PerkType.survivor ? _survivorPerks : _killerPerks;
+    var enabledCount = currentPerks
+        .map((e) => e.enabled ? 1 : 0)
+        .reduce((value, element) => value + element);
+    if (enabledCount >= currentPerks.length / 2) {
+      for (var perk in currentPerks) {
+        perk.enabled = false;
+      }
+    } else {
+      for (var perk in currentPerks) {
+        perk.enabled = true;
+      }
+    }
+    notifyListeners();
   }
 }

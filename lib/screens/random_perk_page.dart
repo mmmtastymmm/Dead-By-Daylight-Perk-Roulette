@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:dbd_perk_picker_flutter/screens/filter_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +41,7 @@ class _RandomPerkPageState extends State<RandomPerkPage>
     });
   }
 
-  void getNewPerks() {
+  void _getNewPerks() {
     setState(() {
       _perks = Provider.of<Perks>(context, listen: false).getRoulettePerks();
     });
@@ -74,70 +74,74 @@ class _RandomPerkPageState extends State<RandomPerkPage>
     }
   }
 
+  void _navigateToFilterAndUpdatePerks() async {
+    await Navigator.of(context).pushNamed(FilterScreen.routeName);
+    _getNewPerks();
+  }
+
   @override
   Widget build(BuildContext context) {
     var currentModeString =
         prettyPerkType(Provider.of<Perks>(context).getMode());
     if (_perks.isEmpty) {
-      getNewPerks();
+      _getNewPerks();
     }
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Dead By Daylight $currentModeString Roulette",
-          ),
-          foregroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text(
+          "Dead By Daylight $currentModeString Roulette",
         ),
-        //
-        backgroundColor: Colors.black,
-        body: Column(
-          children: [
-            TextButton(
-                onPressed: () {
-                  if (kDebugMode) {
-                    print("sad");
-                  }
-                },
-                child: const Text("Filter Perks")),
-            TextButton(
-                onPressed: () {
-                  getNewPerks();
-                },
-                child: const Text("Reroll")),
-            Expanded(
-              child: Center(
-                child: Row(
-                  children: _perks.asMap().entries.map((e) {
-                    return Expanded(
-                      child: Center(
-                        child: Column(
-                          children: [
-                            const SizedBox(
-                              height: 100,
-                            ),
-                            FadeTransition(
-                                opacity: _animation[e.key], child: e.value),
-                            TextButton(
-                              onPressed: () {
-                                _updateSinglePerk(e.key);
-                              },
-                              child: const Text("Reroll"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                _disableAndUpdateSinglePerk(e.key);
-                              },
-                              child: const Text("Disable"),
-                            ),
-                          ],
-                        ),
+        foregroundColor: Colors.white,
+      ),
+      //
+      backgroundColor: Colors.black,
+      body: Column(
+        children: [
+          TextButton(
+              onPressed: () {
+                _navigateToFilterAndUpdatePerks();
+              },
+              child: const Text("Filter Perks")),
+          TextButton(
+              onPressed: () {
+                _getNewPerks();
+              },
+              child: const Text("Reroll")),
+          Expanded(
+            child: Center(
+              child: Row(
+                children: _perks.asMap().entries.map((e) {
+                  return Expanded(
+                    child: Center(
+                      child: Column(
+                        children: [
+                          const SizedBox(
+                            height: 100,
+                          ),
+                          FadeTransition(
+                              opacity: _animation[e.key], child: e.value),
+                          TextButton(
+                            onPressed: () {
+                              _updateSinglePerk(e.key);
+                            },
+                            child: const Text("Reroll"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              _disableAndUpdateSinglePerk(e.key);
+                            },
+                            child: const Text("Disable"),
+                          ),
+                        ],
                       ),
-                    );
-                  }).toList(),
-                ),
+                    ),
+                  );
+                }).toList(),
               ),
-            )
-          ],
-        ));
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

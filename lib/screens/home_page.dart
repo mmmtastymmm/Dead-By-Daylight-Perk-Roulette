@@ -13,8 +13,12 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Dead By Daylight Roulette"),
+        title: const Text(
+          "Dead By Daylight Roulette",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
+      backgroundColor: Colors.black,
       //
       body: Center(
         child: Column(
