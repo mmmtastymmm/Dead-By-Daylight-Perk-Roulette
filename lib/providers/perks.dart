@@ -19,9 +19,16 @@ String prettyPerkType(PerkType perkType) {
   }
 }
 
+class PerkStateWrapper {
+  final Perk perk;
+  bool enabled;
+
+  PerkStateWrapper(this.perk, this.enabled);
+}
+
 class Perks with ChangeNotifier {
-  final List<Perk> _survivorPerks = [];
-  final List<Perk> _killerPerks = [];
+  final List<PerkStateWrapper> _survivorPerks = [];
+  final List<PerkStateWrapper> _killerPerks = [];
   PerkType _currentPerkType = PerkType.killer;
 
   Future<void> loadPerks() async {
@@ -39,7 +46,11 @@ class Perks with ChangeNotifier {
     notifyListeners();
   }
 
-  void updatePerks(dom.Element? survivorTable, List<Perk> listToUpdate) {
+  void updatePerks(
+      dom.Element? survivorTable, List<PerkStateWrapper> perksToUpdate) {
+    // Remove all the old entries
+    perksToUpdate.clear();
+    List<Perk> perks = [];
     // Get the rows and filter out the header
     var allRows = survivorTable?.children.last.children;
     var allRowsSize = allRows?.length;
@@ -54,8 +65,10 @@ class Perks with ChangeNotifier {
     }
     // Now update the perks
     for (var element in goodRows) {
-      listToUpdate.add(Perk.parseFromWiki(element));
+      perks.add(Perk.parseFromWiki(element));
     }
+    // For each perk add an entry
+    perksToUpdate.addAll(perks.map((e) => PerkStateWrapper(e, true)));
   }
 
   int getSize() {
@@ -66,19 +79,11 @@ class Perks with ChangeNotifier {
     }
   }
 
-  Perk getByIndex(int index) {
-    if (_currentPerkType == PerkType.survivor) {
-      return _survivorPerks[index];
-    } else {
-      return _killerPerks[index];
-    }
-  }
-
   List<Perk> getAllCurrentPerks() {
     if (_currentPerkType == PerkType.survivor) {
-      return _survivorPerks;
+      return _survivorPerks.map((e) => e.perk).toList();
     } else {
-      return _killerPerks;
+      return _killerPerks.map((e) => e.perk).toList();
     }
   }
 
@@ -93,19 +98,34 @@ class Perks with ChangeNotifier {
   List<Perk> getRoulettePerks(
       {List<Perk> perksToAvoid = const [], int perkCount = 4}) {
     if (_currentPerkType == PerkType.survivor) {
-      return _getUpToThisManyPerks(_survivorPerks, 4,
+      return _getUpToThisManyPerks(_survivorPerks, perkCount,
           perksToAvoid: perksToAvoid);
     } else {
-      return _getUpToThisManyPerks(_killerPerks, 4, perksToAvoid: perksToAvoid);
+      return _getUpToThisManyPerks(_killerPerks, perkCount,
+          perksToAvoid: perksToAvoid);
     }
   }
 
-  static List<Perk> _getUpToThisManyPerks(List<Perk> perks, int max,
+  static List<Perk> _getUpToThisManyPerks(List<PerkStateWrapper> perks, int max,
       {List<Perk> perksToAvoid = const []}) {
     var randomPerks = perks
-        .where((element) => !perksToAvoid.contains(element))
+        .where((element) =>
+            !perksToAvoid.contains(element.perk) && element.enabled)
+        .map((e) => e.perk)
         .toList()
       ..shuffle();
     return randomPerks.sublist(0, min(max, perks.length)).toList();
+  }
+
+  void disablePerk(Perk perk) {
+    if (_survivorPerks.any((element) => element.perk.name == perk.name)) {
+      _survivorPerks
+          .firstWhere((element) => element.perk.name == perk.name)
+          .enabled = false;
+    } else if (_killerPerks.any((element) => element.perk.name == perk.name)) {
+      _killerPerks
+          .firstWhere((element) => element.perk.name == perk.name)
+          .enabled = false;
+    }
   }
 }

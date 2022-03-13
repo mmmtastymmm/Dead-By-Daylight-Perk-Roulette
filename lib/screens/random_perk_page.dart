@@ -60,6 +60,20 @@ class _RandomPerkPageState extends State<RandomPerkPage>
     _controller[index].forward();
   }
 
+  void _disableAndUpdateSinglePerk(int index) {
+    Provider.of<Perks>(context, listen: false).disablePerk(_perks[index]);
+    _updateSinglePerk(index);
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
+    for (var controller in _controller) {
+      controller.dispose();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var currentModeString =
@@ -111,7 +125,7 @@ class _RandomPerkPageState extends State<RandomPerkPage>
                             ),
                             TextButton(
                               onPressed: () {
-                                _updateSinglePerk(e.key);
+                                _disableAndUpdateSinglePerk(e.key);
                               },
                               child: const Text("Disable"),
                             ),
