@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' show parse;
@@ -107,25 +105,54 @@ class Perks with ChangeNotifier {
   }
 
   List<Perk> getRoulettePerks(
-      {List<Perk> perksToAvoid = const [], int perkCount = 4}) {
+      {List<Perk> perksToAvoid = const [],
+      int perkCount = 4,
+      forceScourgeHook = false,
+      forceHexPerk = false}) {
     if (_currentPerkType == PerkType.survivor) {
       return _getUpToThisManyPerks(_survivorPerks, perkCount,
           perksToAvoid: perksToAvoid);
     } else {
       return _getUpToThisManyPerks(_killerPerks, perkCount,
-          perksToAvoid: perksToAvoid);
+          perksToAvoid: perksToAvoid,
+          forceScourgeHook: forceScourgeHook,
+          forceHexPerk: forceHexPerk);
     }
   }
 
   static List<Perk> _getUpToThisManyPerks(List<PerkStateWrapper> perks, int max,
-      {List<Perk> perksToAvoid = const []}) {
+      {List<Perk> perksToAvoid = const [],
+      forceScourgeHook = false,
+      forceHexPerk = false}) {
     var randomPerks = perks
         .where((element) =>
             !perksToAvoid.contains(element.perk) && element.enabled)
         .map((e) => e.perk)
         .toList()
       ..shuffle();
-    return randomPerks.sublist(0, min(max, randomPerks.length)).toList();
+    List<Perk> returnPerks = [];
+    if (forceScourgeHook &&
+        !returnPerks.any((element) => element.isScourgeHook) &&
+        randomPerks.any((element) => element.isScourgeHook)) {
+      returnPerks.add(randomPerks.firstWhere((element) =>
+          element.isScourgeHook && !returnPerks.contains(element)));
+    }
+    if (forceHexPerk &&
+        !returnPerks.any((element) => element.isHex) &&
+        randomPerks.any((element) => element.isHex)) {
+      returnPerks.add(randomPerks.firstWhere(
+          (element) => element.isHex && !returnPerks.contains(element)));
+    }
+    var index = 0;
+    while (returnPerks.length < max && index < randomPerks.length) {
+      var perk = randomPerks[index];
+      if (!returnPerks.contains(perk)) {
+        returnPerks.add(perk);
+      }
+      index += 1;
+    }
+    // Shuffle before the end so it looks more random
+    return returnPerks..shuffle();
   }
 
   void disablePerk(Perk perk) {

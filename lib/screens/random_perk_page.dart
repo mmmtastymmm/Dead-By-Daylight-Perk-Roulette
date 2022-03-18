@@ -1,4 +1,5 @@
 import 'package:dbd_perk_picker_flutter/screens/filter_screen.dart';
+import 'package:dbd_perk_picker_flutter/widgets/perk_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,22 @@ class RandomPerkPage extends StatefulWidget {
 class _RandomPerkPageState extends State<RandomPerkPage>
     with TickerProviderStateMixin {
   List<Perk> _perks = [];
+  bool _haveScourgeHook = false;
+  bool _haveHex = false;
+
+  void setHaveScourgeHook(bool value) {
+    setState(() {
+      _haveScourgeHook = value;
+    });
+    _getNewPerks();
+  }
+
+  void setHaveHex(bool value) {
+    setState(() {
+      _haveHex = value;
+    });
+    _getNewPerks();
+  }
 
   late final List<AnimationController> _controller =
       List<int>.generate(4, (int index) => index)
@@ -43,7 +60,8 @@ class _RandomPerkPageState extends State<RandomPerkPage>
 
   void _getNewPerks() {
     setState(() {
-      _perks = Provider.of<Perks>(context, listen: false).getRoulettePerks();
+      _perks = Provider.of<Perks>(context, listen: false).getRoulettePerks(
+          forceHexPerk: _haveHex, forceScourgeHook: _haveScourgeHook);
     });
     for (var controller in _controller) {
       controller.reset();
@@ -67,7 +85,6 @@ class _RandomPerkPageState extends State<RandomPerkPage>
 
   @override
   void deactivate() {
-    // TODO: implement deactivate
     super.deactivate();
     for (var controller in _controller) {
       controller.dispose();
@@ -107,6 +124,8 @@ class _RandomPerkPageState extends State<RandomPerkPage>
                 _getNewPerks();
               },
               child: const Text("Reroll")),
+          PerkCheckbox("Include a scourge hook perk", setHaveScourgeHook),
+          PerkCheckbox("Include a hex perk", setHaveHex),
           Expanded(
             child: Center(
               child: Row(
