@@ -108,10 +108,14 @@ class Perks with ChangeNotifier {
       {List<Perk> perksToAvoid = const [],
       int perkCount = 4,
       forceScourgeHook = false,
-      forceHexPerk = false}) {
+      forceHexPerk = false,
+      forceBoonPerk = false,
+      forceExhaustionPerk = false}) {
     if (_currentPerkType == PerkType.survivor) {
       return _getUpToThisManyPerks(_survivorPerks, perkCount,
-          perksToAvoid: perksToAvoid);
+          perksToAvoid: perksToAvoid,
+          forceBoonPerk: forceBoonPerk,
+          forceExhaustionPerk: forceExhaustionPerk);
     } else {
       return _getUpToThisManyPerks(_killerPerks, perkCount,
           perksToAvoid: perksToAvoid,
@@ -123,7 +127,9 @@ class Perks with ChangeNotifier {
   static List<Perk> _getUpToThisManyPerks(List<PerkStateWrapper> perks, int max,
       {List<Perk> perksToAvoid = const [],
       forceScourgeHook = false,
-      forceHexPerk = false}) {
+      forceHexPerk = false,
+      forceBoonPerk = false,
+      forceExhaustionPerk = false}) {
     var randomPerks = perks
         .where((element) =>
             !perksToAvoid.contains(element.perk) && element.enabled)
@@ -143,6 +149,21 @@ class Perks with ChangeNotifier {
       returnPerks.add(randomPerks.firstWhere(
           (element) => element.isHex && !returnPerks.contains(element)));
     }
+
+    if (forceBoonPerk &&
+        !returnPerks.any((element) => element.isBoon) &&
+        randomPerks.any((element) => element.isBoon)) {
+      returnPerks.add(randomPerks.firstWhere(
+          (element) => element.isBoon && !returnPerks.contains(element)));
+    }
+
+    if (forceExhaustionPerk &&
+        !returnPerks.any((element) => element.isExhaustion) &&
+        randomPerks.any((element) => element.isExhaustion)) {
+      returnPerks.add(randomPerks.firstWhere(
+          (element) => element.isExhaustion && !returnPerks.contains(element)));
+    }
+
     var index = 0;
     while (returnPerks.length < max && index < randomPerks.length) {
       var perk = randomPerks[index];

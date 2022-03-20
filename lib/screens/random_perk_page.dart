@@ -20,6 +20,8 @@ class _RandomPerkPageState extends State<RandomPerkPage>
   List<Perk> _perks = [];
   bool _haveScourgeHook = false;
   bool _haveHex = false;
+  bool _haveBoon = false;
+  bool _haveExhastion = false;
 
   void setHaveScourgeHook(bool value) {
     setState(() {
@@ -31,6 +33,20 @@ class _RandomPerkPageState extends State<RandomPerkPage>
   void setHaveHex(bool value) {
     setState(() {
       _haveHex = value;
+    });
+    _getNewPerks();
+  }
+
+  void setHaveBoon(bool value) {
+    setState(() {
+      _haveBoon = value;
+    });
+    _getNewPerks();
+  }
+
+  void setHaveExhaustion(bool value) {
+    setState(() {
+      _haveExhastion = value;
     });
     _getNewPerks();
   }
@@ -53,7 +69,7 @@ class _RandomPerkPageState extends State<RandomPerkPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Provider.of<Perks>(context, listen: false).loadPerks();
     });
   }
@@ -61,7 +77,10 @@ class _RandomPerkPageState extends State<RandomPerkPage>
   void _getNewPerks() {
     setState(() {
       _perks = Provider.of<Perks>(context, listen: false).getRoulettePerks(
-          forceHexPerk: _haveHex, forceScourgeHook: _haveScourgeHook);
+          forceHexPerk: _haveHex,
+          forceScourgeHook: _haveScourgeHook,
+          forceExhaustionPerk: _haveExhastion,
+          forceBoonPerk: _haveBoon);
     });
     for (var controller in _controller) {
       controller.reset();
@@ -103,6 +122,20 @@ class _RandomPerkPageState extends State<RandomPerkPage>
     if (_perks.isEmpty) {
       _getNewPerks();
     }
+
+    List<Widget> perkBoxFilters = [];
+    if (Provider.of<Perks>(context).getMode() == PerkType.killer) {
+      perkBoxFilters = [
+        PerkCheckbox("Include a scourge hook perk", setHaveScourgeHook),
+        PerkCheckbox("Include a hex perk", setHaveHex)
+      ];
+    } else {
+      perkBoxFilters = [
+        PerkCheckbox("Include an exhaustion perk", setHaveExhaustion),
+        PerkCheckbox("Include a boon perk", setHaveBoon)
+      ];
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -124,8 +157,7 @@ class _RandomPerkPageState extends State<RandomPerkPage>
                 _getNewPerks();
               },
               child: const Text("Reroll")),
-          PerkCheckbox("Include a scourge hook perk", setHaveScourgeHook),
-          PerkCheckbox("Include a hex perk", setHaveHex),
+          ...perkBoxFilters,
           Expanded(
             child: Center(
               child: Row(
