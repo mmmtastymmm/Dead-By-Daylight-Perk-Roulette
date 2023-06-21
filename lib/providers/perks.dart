@@ -38,7 +38,7 @@ class Perks with ChangeNotifier {
         .get(Uri.parse("https://deadbydaylight.fandom.com/wiki/Perks"));
     var html = parse(tableResponse.body);
     // Get the two main perk tables, which have this common class name
-    var tables = html.body?.getElementsByClassName("wikitable unknownClass");
+    var tables = html.body?.getElementsByClassName("wikitable sortable");
     var survivorTable = tables?[0];
     updatePerks(survivorTable, _survivorPerks);
     // Now do the same for killer perks
