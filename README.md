@@ -22,8 +22,8 @@ Under all perks is another set of buttons:
 * Disable will reroll and disable the current perk (so it will not show up as a random perk again).
 
 Below is an example of the perk filter screen, with the lighter icons indicating they are enabled
-and the darker icons indicating they are disabled. The top right button will turn all perks on or
-off again, as indicated when hovering over the button.
+and the darker icons indicating they are disabled. Currently, only _Autodidact_ is disabled. The top 
+right button will turn all perks on or off again, as indicated when hovering over the button.
 
 ![The filter screen showing all perks enabled except for autodidact](pictures/survivor_filter_screen.PNG)
 
