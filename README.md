@@ -9,17 +9,17 @@ After picking a role (survivor is shown below) a default perk selection will be 
 ![An example survivor load out.](pictures/survivor_default.PNG)
 
 Below is an explanation of the buttons:
-* *Filter Perks* - This option, located at the top of the window, allows you to disable any perks that
+* **Filter Perks** - This option, located at the top of the window, allows you to disable any perks that
 you don't want to include in the random selection. Once disabled, these perks will not appear in future rotations.
-* *Reroll* - rerolls all the perks.
-*  *Include an Exhaustion Perk* - If this box is checked, at least one perk that interacts with the exhaustion status will be 
+* **Reroll** - rerolls all the perks.
+*  **Include an Exhaustion Perk** - If this box is checked, at least one perk that interacts with the exhaustion status will be 
 included in your loadout. This includes perks like _Made for This_, which only works if not 
 exhausted, or _Sprint Burst_, which causes exhaustion
-* *Include a Boon Perk* - Check this box to guarantee at least one boon perk in your loadout.
+* **Include a Boon Perk** - Check this box to guarantee at least one boon perk in your loadout.
 
 Under all perks is another set of buttons:
-* *Reroll* - This button rerolls that individual perk. 
-* *Disable* - Clicking this will both reroll and disable the current perk, ensuring it doesn't show 
+* **Reroll** - This button rerolls that individual perk. 
+* **Disable** - Clicking this will both reroll and disable the current perk, ensuring it doesn't show 
 up in future random selections.
 
 Below is an example of the perk filter screen, with the lighter icons indicating they are enabled
